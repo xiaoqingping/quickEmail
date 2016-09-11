@@ -28,6 +28,13 @@ qe = quickEmail(protocol_file='server.ini', account_file='youraccount.ini')
 qe.add_tolist(['abc@example.com', 'def@example.com'])
 ```
 
+## 使用SSL
+在邮件服务器中配置smtp-ssl、pop3-ssl等参数
+在发送邮件时，send_mail增加一个ssl=True的参数即可
+```python
+qe.send_mail(qe.set_mail('title', 'email body'), ssl=True)
+```
+
 ## 待更新
 ### tolist配置文件化
 ### 支持发送附件
