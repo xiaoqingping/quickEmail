@@ -69,7 +69,7 @@ qe.send_mail(ssl=True)
 ```
 
 ## 发送附件
-quickEmail支持发送附件。无论是单个附件、多个附件或者是某个路径下的所有文件（不支持多层嵌套）
+quickEmail支持发送附件。无论是单个附件、多个附件或者是某个路径下的所有文件（不支持多层嵌套）<br>
 发送单个附件：`qe.add_attach(filename)`<br>
 多个附件：`qe.add_attach_list([file list])`<br>
 某个路径下的所有文件：`qe.add_attach_path(pathname)`
