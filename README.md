@@ -2,10 +2,10 @@
 封装python的Email库，使其更容易使用
 
 ## 支持功能
-1、发送纯文本邮件\<br>
-2、发送HTML文本邮件\<br>
-3、发送单附件邮件\<br>
-4、发送多附件邮件\<br>
+1、发送纯文本邮件<br>
+2、发送HTML文本邮件<br>
+3、发送单附件邮件<br>
+4、发送多附件邮件<br>
 5、发送邮件模板
 
 ## 上手使用
@@ -70,8 +70,8 @@ qe.send_mail(ssl=True)
 
 ## 发送附件
 quickEmail支持发送附件。无论是单个附件、多个附件或者是某个路径下的所有文件（不支持多层嵌套）
-发送单个附件：`qe.add_attach(filename)`\<br>
-多个附件：`qe.add_attach_list([file list])`\<br>
+发送单个附件：`qe.add_attach(filename)`<br>
+多个附件：`qe.add_attach_list([file list])`<br>
 某个路径下的所有文件：`qe.add_attach_path(pathname)`
 
 ## 待更新
