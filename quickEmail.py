@@ -1,12 +1,13 @@
 # -*- utf-8 -*-
 # author: xiaoqingping@qq.com
 # 封装一个邮箱类
+import os
 import json
 import configparser
 import smtplib
 from email import encoders
 from email.header import Header
-from email.mime.multipart import MIMEMultipart
+from email.mime.multipart import MIMEMultipart, MIMEBase
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 from collections import OrderedDict
@@ -34,6 +35,10 @@ class quickEmail:
     _from = OrderedDict({})
     # 发送账号集合
     _tolist = []
+    # 邮件消息
+    _mail_msg = None
+    # 附件列表
+    _attachment_list = []
 
     # 初始化
     def __init__(self, protocol_file=None, account_file=None):
@@ -121,24 +126,91 @@ class quickEmail:
     def add_tolist_from_file(self, file):
         pass
 
-    #设置邮件格式
+    # 设置邮件格式
+    # title  邮件标题
+    # body   邮件内容
+    # mail_type 邮件类型 是纯文本邮件还是带附件的邮件
+    # attachment 附件文件名
     def set_mail(self, title, body, mail_type='plain'):
+        """设置邮件内容"""
         if mail_type == 'plain':
-            msg = MIMEText(body, 'plain', 'utf-8')
-        else:
-            msg = MIMEMultipart()
-            msg.attach(MIMEText(body, 'plain', 'utf-8'))
+            self.set_plain_mail(body)
+        elif mail_type == 'html':
+            self.set_html_mail(body)
+        elif mail_type == 'attach':
+            self.set_attach_mail(body)
+            for attach in self._attachment_list:
+                self._mail_msg.attach(attach)
 
-        msg['From'] = self._from['account']
-        msg['To'] = ', '. join(self._tolist)
-        msg['Subject'] = Header(title, 'utf-8')
+        self._mail_msg['From'] = self._from['account']
+        self._mail_msg['To'] = ', '.join(self._tolist)
+        self._mail_msg['Subject'] = Header(title, 'utf-8')
 
-        return msg
+    # 设置纯文本邮件
+    def set_plain_mail(self, body):
+        """纯文本邮件"""
+        self._mail_msg = MIMEText(body, 'plain', 'utf-8')
+
+    def set_html_mail(self, body):
+        """HTML邮件"""
+        self._mail_msg = MIMEText(body, 'html', 'utf-8')
+
+    # 设置带附件邮件
+    def set_attach_mail(self, body):
+        """附件邮件"""
+        self._mail_msg = MIMEMultipart('related')
+        contents = MIMEText(body, 'html', 'utf-8')
+        self._mail_msg.attach(contents)
+
+    def add_attach(self, filename):
+        """添加附件"""
+        attach = MIMEBase('application', 'octet-stream')
+        attach.set_payload(open(filename, 'rb').read())
+        encoders.encode_base64(attach)
+        attach.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(filename))
+
+        self._attachment_list.append(attach)
+
+    def add_attach_list(self, file_list):
+        """添加附件列表"""
+        if isinstance(file_list, list):
+            for filename in file_list:
+                self.add_attach(filename)
+
+    def add_attach_path(self, pathname):
+        """添加一个路径下的所有附件"""
+        os.chdir(pathname)
+        dirname = os.getcwd()
+
+        for filename in os.listdir(dirname):
+            self.add_attach(filename)
+
+    def clear_tolist(self):
+        """清空to list"""
+        self._tolist.clear()
+
+    def clear_attach(self):
+        """清空附件列表"""
+        self._attachment_list.clear()
+
+    def clear_mail_msg(self):
+        """清空邮件消息"""
+        self._mail_msg = None
+
+    def clear_all_setting(self):
+        """清空所有设置（用户使用过程中添加的一些设置）"""
+        self.clear_tolist()
+        self.clear_attach()
+        self.clear_mail_msg()
+
 
     # 发送邮件
-    # message: 消息体
+    # message: 消息体，不选择则认定为是构造的邮件
     # ssl: 是否使用ssl发送
-    def send_mail(self, message, ssl=False):
+    def send_mail(self, message=None, ssl=False):
+        if message is None:
+            message = self._mail_msg
+
         if ssl is False:
             smtpObj = smtplib.SMTP(self._smtp['server'], self._smtp['port'])
         else:
@@ -150,6 +222,10 @@ class quickEmail:
         smtpObj.sendmail(self._from['account'], self._tolist, message.as_string())
         # 退出
         smtpObj.quit()
+
+    # 设置邮件模板文件
+    def set_template(self, template_file='default.tpl'):
+        self._template_file = template_file
 
     # 接收邮件
     def recv_mail(self, protocol='pop3', ssl=False):
@@ -170,3 +246,13 @@ class quickEmail:
         print('tolist: ', self._tolist)
 
 
+#try:
+#    qe = quickEmail()
+#except Exception as error:
+#    print(error)
+
+#qe.add_tolist('xiaoqingping@qq.com')
+# qe.add_tolist('xiaoqingping2001@163.com')
+#qe.dump_tolist()
+
+#qe.send_mail(qe.set_mail('This is a email send by Python', 'This is content', mail_type='attach', file_list='tolist.json'), ssl=True)
