@@ -2,7 +2,7 @@
 # author: xiaoqingping@qq.com
 # 发送目录下所有附件
 
-from quickEmail import quickEmail
+from quickEmail.quickEmail import quickEmail
 
 
 # 创建一个qe实例

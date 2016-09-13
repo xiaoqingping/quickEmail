@@ -1,8 +1,8 @@
 # -*- coding:utf-8 -*-
 # author: xiaoqingping@qq.com
-# 发送纯文本邮件
+# 发送纯文本邮件，无配置文件
 
-from quickEmail import quickEmail
+from quickEmail.quickEmail import quickEmail
 
 # 创建一个qe实例
 qe = quickEmail(config_from='nofile',

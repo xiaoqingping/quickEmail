@@ -1,4 +1,4 @@
-from quickEmail import quickEmail
+from quickEmail.quickEmail import quickEmail
 
 try:
     qe = quickEmail()

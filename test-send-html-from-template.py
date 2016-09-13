@@ -2,8 +2,8 @@
 # author: xiaoqingping@qq.com
 # 使用模板
 
-from quickEmail import quickEmail
-from template import Template
+from quickEmail.quickEmail import quickEmail
+from quickEmail.template import Template
 
 # 创建一个qe实例
 qe = quickEmail()
