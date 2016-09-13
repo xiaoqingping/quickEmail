@@ -15,7 +15,7 @@ from collections import OrderedDict
 class quickEmail:
     # 邮件信息从配置文件中读取还是使用内置的邮件配置
     # 默认使用文件配置
-    _build_in_config = False
+    _build_in_config = True
     # 协议配置文件，默认为default.ini
     _protocol_file = 'default.ini'
     # 账号配置文件，默认为account.ini
@@ -41,21 +41,54 @@ class quickEmail:
     _attachment_list = []
 
     # 初始化
-    def __init__(self, protocol_file=None, account_file=None):
-        # 设置协议配置文件
-        if protocol_file is not None:
-            self._protocol_file = protocol_file
+    def __init__(self, config_from='file', protocol_config=None,
+                 account_config=None, protocol_file=None, account_file=None):
+        if config_from == 'file':
+            self._build_in_config = True
+        else:
+            self._build_in_config = False
 
-        # 设置账号配置文件
-        if account_file is not None:
-            self._account_file = account_file
+        if self._build_in_config is True:
+            # 设置协议配置文件
+            if protocol_file is not None:
+                self._protocol_file = protocol_file
 
-        # 初始化配置解析器
-        self._config_handler = configparser.ConfigParser()
-        # 读取协议配置
-        self._load_config()
-        # 读取账号配置
-        self._read_account()
+            # 设置账号配置文件
+            if account_file is not None:
+                self._account_file = account_file
+
+            # 初始化配置解析器
+            self._config_handler = configparser.ConfigParser()
+            # 读取协议配置
+            self._load_config()
+            # 读取账号配置
+            self._read_account()
+        else:
+            if isinstance(protocol_config, dict) and isinstance(account_config, dict):
+                if 'smtp' in protocol_config.keys():
+                    self._smtp['server'] = protocol_config['smtp']['server']
+                    self._smtp['port'] = protocol_config['smtp']['port']
+                if 'smtp-ssl' in protocol_config.keys():
+                    self._smtp_ssl['server'] = protocol_config['smtp-ssl']['server']
+                    self._smtp_ssl['port'] = protocol_config['smtp-ssl']['port']
+                if 'pop3' in protocol_config.keys():
+                    self._pop3['server'] = protocol_config['pop3']['server']
+                    self._pop3['port'] = protocol_config['pop3']['port']
+                if 'pop3-ssl' in protocol_config.keys():
+                    self._pop3_ssl['server'] = protocol_config['pop3-ssl']['server']
+                    self._pop3_ssl['port'] = protocol_config['pop3-ssl']['port']
+                if 'imap' in protocol_config.keys():
+                    self._imap['server'] = protocol_config['imap']['server']
+                    self._imap['port'] = protocol_config['imap']['port']
+                if 'imap-ssl' in protocol_config.keys():
+                    self._imap_ssl['server'] = protocol_config['imap-ssl']['server']
+                    self._imap_ssl['port'] = protocol_config['imap-ssl']['port']
+                if 'account' in account_config.keys():
+                    self._from['account'] = account_config['account']
+                if 'password' in account_config.keys():
+                    self._from['password'] = account_config['password']
+            else:
+                raise '参数不正确'
 
     # 获取字符型的配置
     def _get_ini_str(self, section_name, key_name):
@@ -244,6 +277,9 @@ class quickEmail:
 
     def dump_tolist(self):
         print('tolist: ', self._tolist)
+
+    def dump_attach(self):
+        print('attach list: ', self._attachment_list)
 
 
 #try:
